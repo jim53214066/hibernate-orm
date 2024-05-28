@@ -1,4 +1,3 @@
-```java
 package org.hibernate.action.external;
 
 import org.hibernate.AssertionFailure;
@@ -32,11 +31,11 @@ public final class CollectionUpdateAction extends CollectionAction {
      * @param session The session
      */
     public CollectionUpdateAction(
-                final PersistentCollection<?> collection,
-                final CollectionPersister persister,
-                final Object id,
-                final boolean emptySnapshot,
-                final EventSource session) {
+            final PersistentCollection<?> collection,
+            final CollectionPersister persister,
+            final Object id,
+            final boolean emptySnapshot,
+            final EventSource session) {
         super(persister, collection, id, session);
         this.emptySnapshot = emptySnapshot;
     }
@@ -62,8 +61,7 @@ public final class CollectionUpdateAction extends CollectionAction {
         } else if (collection.needsRecreate(persister)) {
             if (affectedByFilters) {
                 throw new HibernateException("cannot recreate collection while filter is enabled: "
-                        + collectionInfoString(persister, collection, id, session)
-                );
+                        + collectionInfoString(persister, collection, id, session));
             }
             if (!emptySnapshot) {
                 persister.remove(id, session);
@@ -84,7 +82,7 @@ public final class CollectionUpdateAction extends CollectionAction {
             statistics.updateCollection(persister.getRole());
         }
     }
-    
+
     private void preUpdate() {
         getFastSessionServices().eventListenerGroup_PRE_COLLECTION_UPDATE
                 .fireLazyEventOnEachListener(this::newPreCollectionUpdateEvent,
@@ -95,8 +93,7 @@ public final class CollectionUpdateAction extends CollectionAction {
         return new PreCollectionUpdateEvent(
                 getPersister(),
                 getCollection(),
-                eventSource()
-        );
+                eventSource());
     }
 
     private void postUpdate() {
@@ -109,9 +106,7 @@ public final class CollectionUpdateAction extends CollectionAction {
         return new PostCollectionUpdateEvent(
                 getPersister(),
                 getCollection(),
-                eventSource()
-        );
+                eventSource());
     }
 
 }
-```
