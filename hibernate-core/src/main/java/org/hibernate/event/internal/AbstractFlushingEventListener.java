@@ -10,9 +10,9 @@ import java.util.Map;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Interceptor;
-import org.hibernate.action.internal.CollectionRecreateAction;
+import org.hibernate.action.external.CollectionRecreateAction;
 import org.hibernate.action.internal.CollectionRemoveAction;
-import org.hibernate.action.internal.CollectionUpdateAction;
+import org.hibernate.action.external.CollectionUpdateAction;
 import org.hibernate.action.internal.QueuedOperationCollectionAction;
 import org.hibernate.engine.internal.Cascade;
 import org.hibernate.engine.internal.CascadePoint;
