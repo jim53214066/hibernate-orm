@@ -1,4 +1,3 @@
-```java
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
  *
@@ -77,4 +76,3 @@ public final class CollectionRecreateAction extends CollectionAction {
         return new PostCollectionRecreateEvent(getPersister(), getCollection(), eventSource());
     }
 }
-```
