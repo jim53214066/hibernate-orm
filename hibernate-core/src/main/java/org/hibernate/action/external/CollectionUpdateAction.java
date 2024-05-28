@@ -1,9 +1,4 @@
-/*
- * Hibernate, Relational Persistence for Idiomatic Java
- *
- * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
- * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
- */
+```java
 package org.hibernate.action.external;
 
 import org.hibernate.AssertionFailure;
@@ -26,103 +21,97 @@ import static org.hibernate.pretty.MessageHelper.collectionInfoString;
  */
 public final class CollectionUpdateAction extends CollectionAction {
 
-	private final boolean emptySnapshot;
+    private final boolean emptySnapshot;
 
-	/**
-	 * Constructs a CollectionUpdateAction
-	 * @param collection The collection to update
-	 * @param persister The collection persister
-	 * @param id The collection key
-	 * @param emptySnapshot Indicates if the snapshot is empty
-	 * @param session The session
-	 */
-	public CollectionUpdateAction(
-				final PersistentCollection<?> collection,
-				final CollectionPersister persister,
-				final Object id,
-				final boolean emptySnapshot,
-				final EventSource session) {
-		super( persister, collection, id, session );
-		this.emptySnapshot = emptySnapshot;
-	}
+    /**
+     * Constructs a CollectionUpdateAction
+     * @param collection The collection to update
+     * @param persister The collection persister
+     * @param id The collection key
+     * @param emptySnapshot Indicates if the snapshot is empty
+     * @param session The session
+     */
+    public CollectionUpdateAction(
+                final PersistentCollection<?> collection,
+                final CollectionPersister persister,
+                final Object id,
+                final boolean emptySnapshot,
+                final EventSource session) {
+        super(persister, collection, id, session);
+        this.emptySnapshot = emptySnapshot;
+    }
 
-	@Override
-	public void execute() throws HibernateException {
-		final Object id = getKey();
-		final SharedSessionContractImplementor session = getSession();
-		final CollectionPersister persister = getPersister();
-		final PersistentCollection<?> collection = getCollection();
-		final boolean affectedByFilters = persister.isAffectedByEnabledFilters( session );
+    @Override
+    public void execute() throws HibernateException {
+        final Object id = getKey();
+        final SharedSessionContractImplementor session = getSession();
+        final CollectionPersister persister = getPersister();
+        final PersistentCollection<?> collection = getCollection();
+        final boolean affectedByFilters = persister.isAffectedByEnabledFilters(session);
 
-		preUpdate();
+        preUpdate();
 
-		if ( !collection.wasInitialized() ) {
-			// If there were queued operations, they would have been processed
-			// and cleared by now.
-			// The collection should still be dirty.
-			if ( !collection.isDirty() ) {
-				throw new AssertionFailure( "collection is not dirty" );
-			}
-			//do nothing - we only need to notify the cache... 
-		}
-		else if ( !affectedByFilters && collection.empty() ) {
-			if ( !emptySnapshot ) {
-				persister.remove( id, session );
-			}
-		}
-		else if ( collection.needsRecreate( persister ) ) {
-			if ( affectedByFilters ) {
-				throw new HibernateException( "cannot recreate collection while filter is enabled: "
-						+ collectionInfoString( persister, collection, id, session )
-				);
-			}
-			if ( !emptySnapshot ) {
-				persister.remove( id, session );
-			}
-			persister.recreate( collection, id, session );
-		}
-		else {
-			persister.deleteRows( collection, id, session );
-			persister.updateRows( collection, id, session );
-			persister.insertRows( collection, id, session );
-		}
+        if (!collection.wasInitialized()) {
+            if (!collection.isDirty()) {
+                throw new AssertionFailure("collection is not dirty");
+            }
+        } else if (!affectedByFilters && collection.empty()) {
+            if (!emptySnapshot) {
+                persister.remove(id, session);
+            }
+        } else if (collection.needsRecreate(persister)) {
+            if (affectedByFilters) {
+                throw new HibernateException("cannot recreate collection while filter is enabled: "
+                        + collectionInfoString(persister, collection, id, session)
+                );
+            }
+            if (!emptySnapshot) {
+                persister.remove(id, session);
+            }
+            persister.recreate(collection, id, session);
+        } else {
+            persister.deleteRows(collection, id, session);
+            persister.updateRows(collection, id, session);
+            persister.insertRows(collection, id, session);
+        }
 
-		session.getPersistenceContextInternal().getCollectionEntry( collection ).afterAction( collection );
-		evict();
-		postUpdate();
+        session.getPersistenceContextInternal().getCollectionEntry(collection).afterAction(collection);
+        evict();
+        postUpdate();
 
-		final StatisticsImplementor statistics = session.getFactory().getStatistics();
-		if ( statistics.isStatisticsEnabled() ) {
-			statistics.updateCollection( persister.getRole() );
-		}
-	}
-	
-	private void preUpdate() {
-		getFastSessionServices().eventListenerGroup_PRE_COLLECTION_UPDATE
-				.fireLazyEventOnEachListener( this::newPreCollectionUpdateEvent,
-						PreCollectionUpdateEventListener::onPreUpdateCollection );
-	}
+        final StatisticsImplementor statistics = session.getFactory().getStatistics();
+        if (statistics.isStatisticsEnabled()) {
+            statistics.updateCollection(persister.getRole());
+        }
+    }
+    
+    private void preUpdate() {
+        getFastSessionServices().eventListenerGroup_PRE_COLLECTION_UPDATE
+                .fireLazyEventOnEachListener(this::newPreCollectionUpdateEvent,
+                        PreCollectionUpdateEventListener::onPreUpdateCollection);
+    }
 
-	private PreCollectionUpdateEvent newPreCollectionUpdateEvent() {
-		return new PreCollectionUpdateEvent(
-				getPersister(),
-				getCollection(),
-				eventSource()
-		);
-	}
+    private PreCollectionUpdateEvent newPreCollectionUpdateEvent() {
+        return new PreCollectionUpdateEvent(
+                getPersister(),
+                getCollection(),
+                eventSource()
+        );
+    }
 
-	private void postUpdate() {
-		getFastSessionServices().eventListenerGroup_POST_COLLECTION_UPDATE
-				.fireLazyEventOnEachListener( this::newPostCollectionUpdateEvent,
-						PostCollectionUpdateEventListener::onPostUpdateCollection );
-	}
+    private void postUpdate() {
+        getFastSessionServices().eventListenerGroup_POST_COLLECTION_UPDATE
+                .fireLazyEventOnEachListener(this::newPostCollectionUpdateEvent,
+                        PostCollectionUpdateEventListener::onPostUpdateCollection);
+    }
 
-	private PostCollectionUpdateEvent newPostCollectionUpdateEvent() {
-		return new PostCollectionUpdateEvent(
-				getPersister(),
-				getCollection(),
-				eventSource()
-		);
-	}
+    private PostCollectionUpdateEvent newPostCollectionUpdateEvent() {
+        return new PostCollectionUpdateEvent(
+                getPersister(),
+                getCollection(),
+                eventSource()
+        );
+    }
 
 }
+```
